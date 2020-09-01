@@ -1,0 +1,28 @@
+[package]
+name = "matrix-send"
+version = "0.1.0"
+authors = ["Tilo Spannagel <development@tilosp.de>"]
+edition = "2018"
+license = "Apache-2.0"
+homepage = "https://crates.io/crates/matrix-send"
+keywords = ["matrix", "chat", "messaging"]
+repository = "https://github.com/tilosp/matrix-send-rs"
+description = "Non-Interactive CLI Matrix Client"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+url = { version = "2.1", features = ["serde"] }
+serde_json = "1.0"
+directories = "3.0"
+tokio = { version = "0.2", features = ["macros"] }
+structopt = "0.3"
+atty = "0.2"
+
+[dependencies.matrix-sdk]
+git = "https://github.com/matrix-org/matrix-rust-sdk.git"
+rev = "6872cc717b8b7746ea4c4bec8d143e8653f965ed"
+default-features = false
+features = ["rustls-tls"]
