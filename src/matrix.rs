@@ -8,11 +8,8 @@ use crate::{Error, Result};
 
 use matrix_sdk::{
     api::r0::session::login::Response as LoginResponse,
-    events::{
-        room::message::{MessageEventContent, TextMessageEventContent},
-        AnyMessageEventContent,
-    },
-    identifiers::{DeviceId, RoomId, RoomIdOrAliasId, ServerName, UserId},
+    events::room::message::{MessageEventContent, TextMessageEventContent},
+    identifiers::{DeviceId, RoomId, RoomIdOrAliasId, UserId},
     locks::RwLock,
     Client, ClientConfig, Room, Session, SyncSettings,
 };
@@ -24,7 +21,7 @@ use serde::{Deserialize, Serialize};
 struct SessionData {
     homeserver: Url,
     access_token: String,
-    device_id: Box<DeviceId>,
+    device_id: DeviceId,
     user_id: UserId,
 }
 
@@ -138,11 +135,7 @@ impl MatrixClient {
         Ok(())
     }
 
-    pub(crate) async fn join_room(
-        &self,
-        room: &RoomIdOrAliasId,
-        servers: &[Box<ServerName>],
-    ) -> Result {
+    pub(crate) async fn join_room(&self, room: &RoomIdOrAliasId, servers: &[String]) -> Result {
         self.client.join_room_by_id_or_alias(room, servers).await?;
         Ok(())
     }
@@ -186,9 +179,7 @@ impl MatrixClient {
         self.client
             .room_send(
                 room,
-                AnyMessageEventContent::RoomMessage(MessageEventContent::Text(
-                    TextMessageEventContent::plain(message),
-                )),
+                MessageEventContent::Text(TextMessageEventContent::new_plain(message)),
                 None,
             )
             .await?;
