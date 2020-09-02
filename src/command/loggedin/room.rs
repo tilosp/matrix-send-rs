@@ -11,7 +11,7 @@ use structopt::{
     StructOpt,
 };
 
-use matrix_sdk::identifiers::{RoomId, RoomIdOrAliasId};
+use matrix_sdk::identifiers::{RoomId, RoomIdOrAliasId, ServerName};
 
 #[derive(Debug, StructOpt)]
 pub(crate) enum Command {
@@ -34,9 +34,8 @@ impl Command {
 
 #[derive(Debug, StructOpt)]
 pub(crate) struct JoinCommand {
-    #[structopt(parse(try_from_str = ::std::convert::TryFrom::try_from))]
     room: RoomIdOrAliasId,
-    servers: Vec<String>,
+    servers: Vec<Box<ServerName>>,
 }
 
 impl JoinCommand {
@@ -47,7 +46,6 @@ impl JoinCommand {
 
 #[derive(Debug, StructOpt)]
 pub(crate) struct LeaveCommand {
-    #[structopt(parse(try_from_str = ::std::convert::TryFrom::try_from))]
     room: RoomId,
 }
 
@@ -60,7 +58,6 @@ impl LeaveCommand {
 #[derive(Debug, StructOpt)]
 #[structopt(group = ArgGroup::with_name("msgopt"))]
 pub(crate) struct SendCommand {
-    #[structopt(parse(try_from_str = ::std::convert::TryFrom::try_from))]
     room: RoomId,
     #[structopt(group = "msgopt")]
     message: Option<String>,

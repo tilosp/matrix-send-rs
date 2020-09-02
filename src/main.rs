@@ -39,6 +39,9 @@ pub(crate) enum Error {
 
     #[error(transparent)]
     Identifiers(#[from] matrix_sdk::identifiers::Error),
+
+    #[error(transparent)]
+    Base(#[from] matrix_sdk::BaseError),
 }
 
 impl Error {
