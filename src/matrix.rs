@@ -134,7 +134,7 @@ impl MatrixClient {
     }
 
     pub(crate) async fn sync(&self) -> Result {
-        self.client.sync(SyncSettings::new()).await?;
+        self.client.sync(SyncSettings::new()).await;
         Ok(())
     }
 
