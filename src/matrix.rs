@@ -93,7 +93,7 @@ impl MatrixClient {
             client.restore_login(session.into()).await?;
 
             let client = Self::new(client, dirs);
-            client.sync().await?;
+            client.sync().await;
             Some(client)
         } else {
             None
@@ -116,7 +116,7 @@ impl MatrixClient {
         .save(&dirs.session_file)?;
 
         let client = Self::new(client, dirs);
-        client.sync().await?;
+        client.sync().await;
         Ok(client)
     }
 
@@ -133,9 +133,8 @@ impl MatrixClient {
         Ok(())
     }
 
-    pub(crate) async fn sync(&self) -> Result {
-        self.client.sync(SyncSettings::new()).await;
-        Ok(())
+    pub(crate) async fn sync(&self) {
+        self.client.sync(SyncSettings::new()).await
     }
 
     pub(crate) async fn join_room(
