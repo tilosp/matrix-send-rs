@@ -52,7 +52,7 @@ impl Error {
 
 pub(crate) type Result<T = ()> = std::result::Result<T, Error>;
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() -> Result {
     let Opt { command } = Opt::from_args();
 
