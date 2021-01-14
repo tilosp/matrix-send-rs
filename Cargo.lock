@@ -384,7 +384,7 @@ dependencies = [
  "http",
  "indexmap",
  "slab",
- "tokio",
+ "tokio 0.2.24",
  "tokio-util",
  "tracing",
 ]
@@ -464,7 +464,7 @@ dependencies = [
  "itoa",
  "pin-project",
  "socket2",
- "tokio",
+ "tokio 0.2.24",
  "tower-service",
  "tracing",
  "want",
@@ -481,7 +481,7 @@ dependencies = [
  "hyper",
  "log",
  "rustls",
- "tokio",
+ "tokio 0.2.24",
  "tokio-rustls",
  "webpki",
 ]
@@ -616,7 +616,7 @@ dependencies = [
  "reqwest",
  "serde_json",
  "thiserror",
- "tokio",
+ "tokio 0.2.24",
  "tracing",
  "tracing-futures",
  "url",
@@ -633,7 +633,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
- "tokio",
+ "tokio 0.2.24",
  "tracing",
  "zeroize",
 ]
@@ -648,7 +648,7 @@ dependencies = [
  "futures-locks",
  "instant",
  "ruma",
- "tokio",
+ "tokio 0.2.24",
  "uuid",
 ]
 
@@ -663,7 +663,7 @@ dependencies = [
  "serde_json",
  "structopt",
  "thiserror",
- "tokio",
+ "tokio 1.0.1",
  "url",
 ]
 
@@ -940,7 +940,7 @@ dependencies = [
  "rustls",
  "serde",
  "serde_urlencoded",
- "tokio",
+ "tokio 0.2.24",
  "tokio-rustls",
  "url",
  "wasm-bindgen",
@@ -1479,14 +1479,24 @@ dependencies = [
  "mio",
  "pin-project-lite 0.1.9",
  "slab",
+]
+
+[[package]]
+name = "tokio"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d258221f566b6c803c7b4714abadc080172b272090cdc5e244a6d4dd13c3a6bd"
+dependencies = [
+ "autocfg",
+ "pin-project-lite 0.2.4",
  "tokio-macros",
 ]
 
 [[package]]
 name = "tokio-macros"
-version = "0.2.6"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e44da00bfc73a25f814cd8d7e57a68a5c31b74b3152a0a1d1f590c97ed06265a"
+checksum = "42517d2975ca3114b22a16192634e8241dc5cc1f130be194645970cc1c371494"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1501,7 +1511,7 @@ checksum = "e12831b255bcfa39dc0436b01e19fea231a37db570686c06ee72c423479f889a"
 dependencies = [
  "futures-core",
  "rustls",
- "tokio",
+ "tokio 0.2.24",
  "webpki",
 ]
 
@@ -1516,7 +1526,7 @@ dependencies = [
  "futures-sink",
  "log",
  "pin-project-lite 0.1.9",
- "tokio",
+ "tokio 0.2.24",
 ]
 
 [[package]]
