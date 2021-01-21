@@ -570,7 +570,7 @@ checksum = "7ffc5c5338469d4d3ea17d269fa8ea3512ad247247c30bd2df69e68309ed0a08"
 [[package]]
 name = "matrix-sdk"
 version = "0.2.0"
-source = "git+https://github.com/tilosp/matrix-rust-sdk.git?rev=7b8d2b5319bebcd95eee2c10b1e59641dea46e8e#7b8d2b5319bebcd95eee2c10b1e59641dea46e8e"
+source = "git+https://github.com/matrix-org/matrix-rust-sdk.git?rev=7b8d2b5319bebcd95eee2c10b1e59641dea46e8e#7b8d2b5319bebcd95eee2c10b1e59641dea46e8e"
 dependencies = [
  "futures-timer",
  "http",
@@ -590,7 +590,7 @@ dependencies = [
 [[package]]
 name = "matrix-sdk-base"
 version = "0.2.0"
-source = "git+https://github.com/tilosp/matrix-rust-sdk.git?rev=7b8d2b5319bebcd95eee2c10b1e59641dea46e8e#7b8d2b5319bebcd95eee2c10b1e59641dea46e8e"
+source = "git+https://github.com/matrix-org/matrix-rust-sdk.git?rev=7b8d2b5319bebcd95eee2c10b1e59641dea46e8e#7b8d2b5319bebcd95eee2c10b1e59641dea46e8e"
 dependencies = [
  "matrix-sdk-common",
  "serde",
@@ -604,7 +604,7 @@ dependencies = [
 [[package]]
 name = "matrix-sdk-common"
 version = "0.2.0"
-source = "git+https://github.com/tilosp/matrix-rust-sdk.git?rev=7b8d2b5319bebcd95eee2c10b1e59641dea46e8e#7b8d2b5319bebcd95eee2c10b1e59641dea46e8e"
+source = "git+https://github.com/matrix-org/matrix-rust-sdk.git?rev=7b8d2b5319bebcd95eee2c10b1e59641dea46e8e#7b8d2b5319bebcd95eee2c10b1e59641dea46e8e"
 dependencies = [
  "async-trait",
  "futures-locks",
