@@ -15,9 +15,13 @@ use matrix_sdk::identifiers::{RoomId, RoomIdOrAliasId, ServerName};
 
 #[derive(Debug, StructOpt)]
 pub(crate) enum Command {
+    /// Join Room
     Join(JoinCommand),
+    /// Leave Room
     Leave(LeaveCommand),
+    /// Send Message into Room
     Send(SendCommand),
+    /// List Rooms
     List(ListCommand),
 }
 
@@ -34,7 +38,9 @@ impl Command {
 
 #[derive(Debug, StructOpt)]
 pub(crate) struct JoinCommand {
+    /// Alias or ID of Room
     room: RoomIdOrAliasId,
+    /// Homeservers used to find the Room
     servers: Vec<Box<ServerName>>,
 }
 
@@ -46,6 +52,7 @@ impl JoinCommand {
 
 #[derive(Debug, StructOpt)]
 pub(crate) struct LeaveCommand {
+    /// Room ID
     room: RoomId,
 }
 
@@ -58,9 +65,13 @@ impl LeaveCommand {
 #[derive(Debug, StructOpt)]
 #[structopt(group = ArgGroup::with_name("msgopt"))]
 pub(crate) struct SendCommand {
+    /// Room ID
     room: RoomId,
+    /// Message to send
     #[structopt(group = "msgopt")]
     message: Option<String>,
+
+    /// Read Message from file
     #[structopt(short, long, group = "msgopt")]
     file: Option<PathBuf>,
 }
@@ -88,6 +99,7 @@ impl SendCommand {
 
 #[derive(Debug, StructOpt)]
 pub(crate) struct ListCommand {
+    /// Kind
     #[structopt(possible_values = &["joined", "invited", "left"], default_value = "joined")]
     kind: Kind,
 }

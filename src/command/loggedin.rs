@@ -6,6 +6,7 @@ mod room;
 
 #[derive(Debug, StructOpt)]
 pub(crate) enum Command {
+    /// Room Subcommands
     Room(RoomCommand),
 }
 

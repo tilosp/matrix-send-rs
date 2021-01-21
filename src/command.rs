@@ -12,7 +12,9 @@ mod loggedin;
 pub(crate) enum Command {
     #[structopt(flatten)]
     LoggedInCommand(loggedin::Command),
+    /// Login to Matrix Account
     Login(LoginCommand),
+    /// Logout from Matrix Account
     Logout(LogoutCommand),
 }
 
@@ -31,8 +33,11 @@ impl Command {
 
 #[derive(Debug, StructOpt)]
 pub(crate) struct LoginCommand {
+    /// Homeserver Url
     homeserver: Url,
+    /// Matrix Account Username
     username: Option<String>,
+    /// Matrix Account Password
     password: Option<String>,
 }
 
