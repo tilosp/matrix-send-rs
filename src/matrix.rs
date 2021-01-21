@@ -85,8 +85,8 @@ impl MatrixClient {
         Ok(Client::new_with_config(homserver, client_config)?)
     }
 
-    pub(crate) async fn load(dirs: &Directories) -> Result<Option<Self>> {
-        Ok(if dirs.session_file.exists() {
+    pub(crate) async fn load(dirs: &Directories) -> Result<Self> {
+        if dirs.session_file.exists() {
             let session = SessionData::load(&dirs.session_file)?;
 
             let client = Self::create_client(session.homeserver.clone())?;
@@ -94,10 +94,10 @@ impl MatrixClient {
 
             let client = Self::new(client, dirs);
             client.sync_once().await?;
-            Some(client)
+            Ok(client)
         } else {
-            None
-        })
+            Err(Error::NotLoggedIn)
+        }
     }
 
     pub(crate) async fn login(

@@ -1,3 +1,5 @@
+use std::fs;
+
 use crate::{dir::Directories, matrix::MatrixClient, Error, Result};
 
 use url::Url;
@@ -11,18 +13,17 @@ pub(crate) enum Command {
     #[structopt(flatten)]
     LoggedInCommand(loggedin::Command),
     Login(LoginCommand),
+    Logout(LogoutCommand),
 }
 
 impl Command {
-    pub(super) async fn run(self, client: Option<MatrixClient>, dirs: &Directories) -> Result {
+    pub(super) async fn run(self, client: Result<MatrixClient>, dirs: &Directories) -> Result {
         match self {
             Self::Login(command) => command.run(client, dirs).await,
+            Self::Logout(command) => command.run(client, dirs).await,
             Self::LoggedInCommand(command) => {
-                if let Some(client) = client {
-                    command.run(client).await
-                } else {
-                    Error::custom("Not logged in")
-                }
+                let client = client?;
+                command.run(client).await
             }
         }
     }
@@ -36,8 +37,8 @@ pub(crate) struct LoginCommand {
 }
 
 impl LoginCommand {
-    async fn run(self, client: Option<MatrixClient>, dirs: &Directories) -> Result {
-        if let Some(_) = client {
+    async fn run(self, client: Result<MatrixClient>, dirs: &Directories) -> Result {
+        if let Ok(_) = client {
             Error::custom("Already logged in")
         } else {
             let username = self
@@ -56,5 +57,22 @@ impl LoginCommand {
         let mut line = String::new();
         std::io::stdin().read_line(&mut line)?;
         Ok(line)
+    }
+}
+
+#[derive(Debug, StructOpt)]
+pub(crate) struct LogoutCommand {}
+
+impl LogoutCommand {
+    async fn run(self, client: Result<MatrixClient>, dirs: &Directories) -> Result {
+        if let Ok(client) = client {
+            client.logout().await?;
+        } else {
+            if dirs.session_file.exists() {
+                fs::remove_file(&dirs.session_file)?;
+            }
+            client?;
+        }
+        Ok(())
     }
 }
