@@ -11,7 +11,10 @@ use structopt::{
     StructOpt,
 };
 
-use matrix_sdk::identifiers::{RoomId, RoomIdOrAliasId, ServerName};
+use matrix_sdk::{
+    events::room::message::TextMessageEventContent,
+    identifiers::{RoomId, RoomIdOrAliasId, ServerName},
+};
 
 #[derive(Debug, StructOpt)]
 pub(crate) enum Command {
@@ -63,7 +66,10 @@ impl LeaveCommand {
 }
 
 #[derive(Debug, StructOpt)]
-#[structopt(group = ArgGroup::with_name("msgopt"))]
+#[structopt(
+    group = ArgGroup::with_name("msgopt"),
+    group = ArgGroup::with_name("format"),
+)]
 pub(crate) struct SendCommand {
     /// Room ID
     room: RoomId,
@@ -74,6 +80,14 @@ pub(crate) struct SendCommand {
     /// Read Message from file
     #[structopt(short, long, group = "msgopt")]
     file: Option<PathBuf>,
+
+    /// Put message in code block
+    #[structopt(name = "language", long = "code", group = "format")]
+    code: Option<Option<String>>,
+
+    /// Message is Markdown
+    #[structopt(long, group = "format")]
+    markdown: bool,
 }
 
 impl SendCommand {
@@ -92,7 +106,28 @@ impl SendCommand {
             }
             line
         };
-        client.send(&self.room, msg.trim()).await?;
+        client
+            .send(
+                &self.room,
+                if let Some(language) = self.code {
+                    let mut fmt_msg = String::from("```");
+                    if let Some(language) = language {
+                        fmt_msg.push_str(&language);
+                    }
+                    fmt_msg.push('\n');
+                    fmt_msg.push_str(&msg);
+                    if fmt_msg.chars().last() != Some('\n') {
+                        fmt_msg.push('\n');
+                    }
+                    fmt_msg.push_str("```");
+                    TextMessageEventContent::markdown(fmt_msg)
+                } else if self.markdown {
+                    TextMessageEventContent::markdown(msg)
+                } else {
+                    TextMessageEventContent::plain(msg)
+                },
+            )
+            .await?;
         Ok(())
     }
 }

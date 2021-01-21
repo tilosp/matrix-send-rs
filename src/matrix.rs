@@ -182,13 +182,11 @@ impl MatrixClient {
             .collect()
     }
 
-    pub(crate) async fn send(&self, room: &RoomId, message: &str) -> Result {
+    pub(crate) async fn send(&self, room: &RoomId, message: TextMessageEventContent) -> Result {
         self.client
             .room_send(
                 room,
-                AnyMessageEventContent::RoomMessage(MessageEventContent::Text(
-                    TextMessageEventContent::plain(message),
-                )),
+                AnyMessageEventContent::RoomMessage(MessageEventContent::Text(message)),
                 None,
             )
             .await?;

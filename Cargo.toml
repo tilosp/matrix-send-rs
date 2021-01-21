@@ -30,7 +30,7 @@ structopt = "0.3"
 atty = "0.2"
 
 [dependencies.matrix-sdk]
-git = "https://github.com/matrix-org/matrix-rust-sdk.git"
-rev = "b311a31c9ef942c357ceb16f07586246655191ce"
+git = "https://github.com/tilosp/matrix-rust-sdk.git"
+rev = "7b8d2b5319bebcd95eee2c10b1e59641dea46e8e"
 default-features = false
-features = ["rustls-tls"]
+features = ["rustls-tls", "markdown"]
