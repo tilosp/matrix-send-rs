@@ -1,6 +1,6 @@
 [package]
 name = "matrix-send"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Tilo Spannagel <development@tilosp.de>"]
 edition = "2018"
 license = "Apache-2.0"
