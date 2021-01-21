@@ -25,6 +25,9 @@ pub(crate) enum Error {
     #[error("No valid home directory path")]
     NoNomeDirectory,
 
+    #[error("Not logged in")]
+    NotLoggedIn,
+
     #[error(transparent)]
     IO(#[from] std::io::Error),
 
@@ -58,7 +61,7 @@ async fn main() -> Result {
 
     let dirs = Directories::new()?;
 
-    let client = MatrixClient::load(&dirs).await?;
+    let client = MatrixClient::load(&dirs).await;
 
     command.run(client, &dirs).await
 }
