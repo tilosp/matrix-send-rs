@@ -31,13 +31,35 @@ struct SessionData {
 impl SessionData {
     fn load(path: &PathBuf) -> Result<SessionData> {
         let reader = File::open(path)?;
+        // matrix-send-rs used to create session.js as world-readable, so just ensuring the correct
+        // permissions during writing isn't good enough. We also need to fix the existing files.
+        SessionData::set_permissions(&reader)?;
         Ok(serde_json::from_reader(reader)?)
     }
 
     fn save(&self, path: &PathBuf) -> Result {
         fs::create_dir_all(path.parent().ok_or(Error::NoNomeDirectory)?)?;
         let writer = File::create(path)?;
-        serde_json::to_writer_pretty(writer, self)?;
+        serde_json::to_writer_pretty(&writer, self)?;
+        SessionData::set_permissions(&writer)?;
+        Ok(())
+    }
+
+    #[cfg(unix)]
+    fn set_permissions(file: &File) -> Result {
+        use std::os::unix::fs::PermissionsExt;
+
+        let perms = file.metadata()?.permissions();
+
+        // is the file world-readable? if so, reset the permissions to 600
+        if perms.mode() & 0o4 == 0o4 {
+            file.set_permissions(fs::Permissions::from_mode(0o600)).unwrap();
+        }
+        Ok(())
+    }
+
+    #[cfg(not(unix))]
+    fn set_permissions(file: &File) -> Result {
         Ok(())
     }
 
