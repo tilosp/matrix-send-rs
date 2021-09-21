@@ -11,7 +11,7 @@ mod loggedin;
 #[derive(Debug, StructOpt)]
 pub(crate) enum Command {
     #[structopt(flatten)]
-    LoggedInCommand(loggedin::Command),
+    LoggedInCommands(loggedin::Command),
     /// Login to Matrix Account
     Login(LoginCommand),
     /// Logout from Matrix Account
@@ -23,7 +23,7 @@ impl Command {
         match self {
             Self::Login(command) => command.run(client, dirs).await,
             Self::Logout(command) => command.run(client, dirs).await,
-            Self::LoggedInCommand(command) => {
+            Self::LoggedInCommands(command) => {
                 let client = client?;
                 command.run(client).await
             }
@@ -43,7 +43,7 @@ pub(crate) struct LoginCommand {
 
 impl LoginCommand {
     async fn run(self, client: Result<MatrixClient>, dirs: &Directories) -> Result {
-        if let Ok(_) = client {
+        if client.is_ok() {
             Error::custom("Already logged in")
         } else {
             let username = self
