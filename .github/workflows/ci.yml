@@ -1,4 +1,4 @@
-name: CI
+name: Continuous integration
 
 on:
   push:
@@ -6,24 +6,46 @@ on:
   schedule: [cron: "40 1 * * *"]
 
 jobs:
-  test:
+  ci:
     name: Rust ${{matrix.rust}}
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
-        rust: [stable, beta, nightly]
-    steps:
-      - uses: actions/checkout@v2
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{matrix.rust}}
-      - run: cargo test
+        rust:
+          - stable
+          - beta
+          - nightly
 
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: dtolnay/rust-toolchain@clippy
-      - run: cargo clippy
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install ${{matrix.rust}} toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          override: true
+          components: rustfmt, clippy
+
+      - name: Run cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+      - name: Run cargo fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+
+      - name: Run cargo clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: -- -D warnings

@@ -116,7 +116,7 @@ impl SendCommand {
                     }
                     fmt_msg.push('\n');
                     fmt_msg.push_str(&msg);
-                    if fmt_msg.chars().last() != Some('\n') {
+                    if !fmt_msg.ends_with('\n') {
                         fmt_msg.push('\n');
                     }
                     fmt_msg.push_str("```");

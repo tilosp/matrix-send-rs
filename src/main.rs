@@ -35,10 +35,10 @@ pub(crate) enum Error {
     Matrix(#[from] matrix_sdk::Error),
 
     #[error(transparent)]
-    JSON(#[from] serde_json::Error),
+    Json(#[from] serde_json::Error),
 
     #[error(transparent)]
-    URL(#[from] url::ParseError),
+    Url(#[from] url::ParseError),
 
     #[error(transparent)]
     Identifiers(#[from] matrix_sdk::identifiers::Error),
