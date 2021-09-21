@@ -53,7 +53,8 @@ impl SessionData {
 
         // is the file world-readable? if so, reset the permissions to 600
         if perms.mode() & 0o4 == 0o4 {
-            file.set_permissions(fs::Permissions::from_mode(0o600)).unwrap();
+            file.set_permissions(fs::Permissions::from_mode(0o600))
+                .unwrap();
         }
         Ok(())
     }
