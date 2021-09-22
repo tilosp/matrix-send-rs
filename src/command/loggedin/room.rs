@@ -12,6 +12,7 @@ use structopt::{
 };
 
 use matrix_sdk::{
+    room::Room,
     ruma::events::room::message::TextMessageEventContent,
     ruma::identifiers::{RoomId, RoomIdOrAliasId, ServerName},
 };
@@ -140,13 +141,14 @@ impl SendCommand {
 #[derive(Debug, StructOpt)]
 pub(crate) struct ListCommand {
     /// Kind
-    #[structopt(possible_values = &["joined", "invited", "left"], default_value = "joined")]
-    kind: Kind,
+    #[structopt(possible_values = &["all", "joined", "invited", "left"], default_value = "joined")]
+    kind: Vec<Kind>,
 }
 
 arg_enum! {
     #[derive(Debug)]
     enum Kind {
+        All,
         Joined,
         Invited,
         Left
@@ -155,12 +157,17 @@ arg_enum! {
 
 impl ListCommand {
     async fn run(self, client: MatrixClient) -> Result {
-        let rooms = match self.kind {
-            Kind::Joined => client.joined_rooms().await,
-            Kind::Invited => client.invited_rooms().await,
-            Kind::Left => client.left_rooms().await,
-        };
-        for room in rooms {
+        for room in client.rooms().into_iter().filter(|r| {
+            self.kind.iter().any(|k| {
+                matches!(
+                    (k, r),
+                    (Kind::All, _)
+                        | (Kind::Joined, Room::Joined(_))
+                        | (Kind::Left, Room::Left(_))
+                        | (Kind::Invited, Room::Invited(_))
+                )
+            })
+        }) {
             if let Ok(name) = room.display_name().await {
                 println!("{}\t{}", room.room_id(), name);
             } else {

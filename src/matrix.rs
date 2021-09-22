@@ -10,7 +10,7 @@ use matrix_sdk::{
     ruma::api::client::r0::session::login::Response as LoginResponse,
     ruma::events::room::message::{MessageEventContent, MessageType, TextMessageEventContent},
     ruma::identifiers::{DeviceId, RoomId, RoomIdOrAliasId, ServerName, UserId},
-    BaseRoom, Client, ClientConfig, Session, SyncSettings,
+    Client, ClientConfig, Session, SyncSettings,
 };
 use url::Url;
 
@@ -172,30 +172,6 @@ impl MatrixClient {
     ) -> Result {
         self.client.join_room_by_id_or_alias(room, servers).await?;
         Ok(())
-    }
-
-    pub(crate) async fn joined_rooms(&self) -> Vec<BaseRoom> {
-        self.client
-            .joined_rooms()
-            .iter()
-            .map(|i| i.deref().deref().clone())
-            .collect()
-    }
-
-    pub(crate) async fn invited_rooms(&self) -> Vec<BaseRoom> {
-        self.client
-            .invited_rooms()
-            .iter()
-            .map(|i| i.deref().deref().clone())
-            .collect()
-    }
-
-    pub(crate) async fn left_rooms(&self) -> Vec<BaseRoom> {
-        self.client
-            .left_rooms()
-            .iter()
-            .map(|i| i.deref().deref().clone())
-            .collect()
     }
 
     pub(crate) async fn send(&self, room: &RoomId, message: TextMessageEventContent) -> Result {
