@@ -28,6 +28,9 @@ pub(crate) enum Error {
     #[error("Not logged in")]
     NotLoggedIn,
 
+    #[error("Invalid Room")]
+    InvalidRoom,
+
     #[error(transparent)]
     IO(#[from] std::io::Error),
 
@@ -38,13 +41,7 @@ pub(crate) enum Error {
     Json(#[from] serde_json::Error),
 
     #[error(transparent)]
-    Url(#[from] url::ParseError),
-
-    #[error(transparent)]
-    Identifiers(#[from] matrix_sdk::identifiers::Error),
-
-    #[error(transparent)]
-    Base(#[from] matrix_sdk::BaseError),
+    Http(#[from] matrix_sdk::HttpError),
 }
 
 impl Error {
