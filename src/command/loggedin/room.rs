@@ -2,7 +2,7 @@ use std::fs;
 use std::io::{self, Read};
 use std::path::PathBuf;
 
-use crate::{matrix::MatrixClient, Result};
+use crate::{matrix::MatrixClient, Error, Result};
 
 use atty::Stream;
 
@@ -12,8 +12,8 @@ use structopt::{
 };
 
 use matrix_sdk::{
-    events::room::message::TextMessageEventContent,
-    identifiers::{RoomId, RoomIdOrAliasId, ServerName},
+    ruma::events::room::message::TextMessageEventContent,
+    ruma::identifiers::{RoomId, RoomIdOrAliasId, ServerName},
 };
 
 #[derive(Debug, StructOpt)]
@@ -61,7 +61,12 @@ pub(crate) struct LeaveCommand {
 
 impl LeaveCommand {
     async fn run(self, client: MatrixClient) -> Result {
-        client.leave_room(&self.room).await
+        client
+            .get_joined_room(&self.room)
+            .ok_or(Error::InvalidRoom)?
+            .leave()
+            .await?;
+        Ok(())
     }
 }
 
@@ -156,8 +161,11 @@ impl ListCommand {
             Kind::Left => client.left_rooms().await,
         };
         for room in rooms {
-            let room = room.read().await;
-            println!("{}\t{}", room.room_id, room.display_name());
+            if let Ok(name) = room.display_name().await {
+                println!("{}\t{}", room.room_id(), name);
+            } else {
+                println!("{}", room.room_id());
+            }
         }
         Ok(())
     }

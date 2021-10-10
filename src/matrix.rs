@@ -1,20 +1,16 @@
 use std::fs;
 use std::fs::File;
+use std::ops::Deref;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
 
 use crate::dir::Directories;
 use crate::{Error, Result};
 
 use matrix_sdk::{
-    api::r0::session::login::Response as LoginResponse,
-    events::{
-        room::message::{MessageEventContent, TextMessageEventContent},
-        AnyMessageEventContent,
-    },
-    identifiers::{DeviceId, RoomId, RoomIdOrAliasId, ServerName, UserId},
-    locks::RwLock,
-    Client, ClientConfig, Room, Session, SyncSettings,
+    ruma::api::client::r0::session::login::Response as LoginResponse,
+    ruma::events::room::message::{MessageEventContent, MessageType, TextMessageEventContent},
+    ruma::identifiers::{DeviceId, RoomId, RoomIdOrAliasId, ServerName, UserId},
+    BaseRoom, Client, ClientConfig, Session, SyncSettings,
 };
 use url::Url;
 
@@ -95,6 +91,14 @@ pub(crate) struct MatrixClient {
     session_file: PathBuf,
 }
 
+impl Deref for MatrixClient {
+    type Target = Client;
+
+    fn deref(&self) -> &Self::Target {
+        &self.client
+    }
+}
+
 impl MatrixClient {
     fn new(client: Client, dirs: &Directories) -> Self {
         Self {
@@ -170,38 +174,27 @@ impl MatrixClient {
         Ok(())
     }
 
-    pub(crate) async fn leave_room(&self, room: &RoomId) -> Result {
-        self.client.leave_room(room).await?;
-        Ok(())
-    }
-
-    pub(crate) async fn joined_rooms(&self) -> Vec<Arc<RwLock<Room>>> {
+    pub(crate) async fn joined_rooms(&self) -> Vec<BaseRoom> {
         self.client
             .joined_rooms()
-            .read()
-            .await
             .iter()
-            .map(|i| i.1.clone())
+            .map(|i| i.deref().deref().clone())
             .collect()
     }
 
-    pub(crate) async fn invited_rooms(&self) -> Vec<Arc<RwLock<Room>>> {
+    pub(crate) async fn invited_rooms(&self) -> Vec<BaseRoom> {
         self.client
             .invited_rooms()
-            .read()
-            .await
             .iter()
-            .map(|i| i.1.clone())
+            .map(|i| i.deref().deref().clone())
             .collect()
     }
 
-    pub(crate) async fn left_rooms(&self) -> Vec<Arc<RwLock<Room>>> {
+    pub(crate) async fn left_rooms(&self) -> Vec<BaseRoom> {
         self.client
             .left_rooms()
-            .read()
-            .await
             .iter()
-            .map(|i| i.1.clone())
+            .map(|i| i.deref().deref().clone())
             .collect()
     }
 
@@ -209,7 +202,7 @@ impl MatrixClient {
         self.client
             .room_send(
                 room,
-                AnyMessageEventContent::RoomMessage(MessageEventContent::Text(message)),
+                MessageEventContent::new(MessageType::Text(message)),
                 None,
             )
             .await?;

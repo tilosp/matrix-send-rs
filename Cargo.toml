@@ -28,9 +28,4 @@ directories = "3.0"
 tokio = { version = "1.11", default-features = false, features = ["rt-multi-thread", "macros"] }
 structopt = "0.3"
 atty = "0.2"
-
-[dependencies.matrix-sdk]
-git = "https://github.com/matrix-org/matrix-rust-sdk.git"
-rev = "7b8d2b5319bebcd95eee2c10b1e59641dea46e8e"
-default-features = false
-features = ["rustls-tls", "markdown"]
+matrix-sdk = { version = "0.4", default-features = false, features = ["rustls-tls", "markdown"] }
