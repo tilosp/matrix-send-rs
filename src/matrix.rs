@@ -165,19 +165,19 @@ impl MatrixClient {
         Ok(())
     }
 
-    pub(crate) fn room(&self, room_id: &RoomId) -> Result<room::Room> {
+    /*pub(crate) fn room(&self, room_id: &RoomId) -> Result<room::Room> {
         self.get_room(room_id).ok_or(Error::InvalidRoom)
-    }
+    }*/
 
     pub(crate) fn joined_room(&self, room_id: &RoomId) -> Result<room::Joined> {
         self.get_joined_room(room_id).ok_or(Error::InvalidRoom)
     }
 
-    pub(crate) fn invited_room(&self, room_id: &RoomId) -> Result<room::Invited> {
+    /*pub(crate) fn invited_room(&self, room_id: &RoomId) -> Result<room::Invited> {
         self.get_invited_room(room_id).ok_or(Error::InvalidRoom)
-    }
+    }*/
 
-    pub(crate) fn left_room(&self, room_id: &RoomId) -> Result<room::Left> {
+    /*pub(crate) fn left_room(&self, room_id: &RoomId) -> Result<room::Left> {
         self.get_left_room(room_id).ok_or(Error::InvalidRoom)
-    }
+    }*/
 }
