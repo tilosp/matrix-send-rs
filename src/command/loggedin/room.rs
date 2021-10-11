@@ -52,7 +52,8 @@ pub(crate) struct JoinCommand {
 
 impl JoinCommand {
     async fn run(self, client: MatrixClient) -> Result {
-        client.join_room(&self.room, &self.servers).await
+        client.join_room_by_id_or_alias(&self.room, &self.servers).await?;
+        Ok(())
     }
 }
 

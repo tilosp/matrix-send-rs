@@ -9,7 +9,7 @@ use crate::{Error, Result};
 use matrix_sdk::{
     ruma::api::client::r0::session::login::Response as LoginResponse,
     ruma::events::room::message::{MessageEventContent, MessageType},
-    ruma::identifiers::{DeviceId, RoomId, RoomIdOrAliasId, ServerName, UserId},
+    ruma::identifiers::{DeviceId, RoomId, UserId},
     Client, ClientConfig, Session, SyncSettings,
 };
 use url::Url;
@@ -162,15 +162,6 @@ impl MatrixClient {
 
     pub(crate) async fn sync_once(&self) -> Result {
         self.client.sync_once(SyncSettings::new()).await?;
-        Ok(())
-    }
-
-    pub(crate) async fn join_room(
-        &self,
-        room: &RoomIdOrAliasId,
-        servers: &[Box<ServerName>],
-    ) -> Result {
-        self.client.join_room_by_id_or_alias(room, servers).await?;
         Ok(())
     }
 
