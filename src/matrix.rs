@@ -7,9 +7,9 @@ use crate::dir::Directories;
 use crate::{Error, Result};
 
 use matrix_sdk::{
+    room,
     ruma::api::client::r0::session::login::Response as LoginResponse,
-    ruma::events::room::message::{MessageEventContent, MessageType},
-    ruma::identifiers::{DeviceId, RoomId, RoomIdOrAliasId, ServerName, UserId},
+    ruma::identifiers::{DeviceId, RoomId, UserId},
     Client, ClientConfig, Session, SyncSettings,
 };
 use url::Url;
@@ -165,19 +165,19 @@ impl MatrixClient {
         Ok(())
     }
 
-    pub(crate) async fn join_room(
-        &self,
-        room: &RoomIdOrAliasId,
-        servers: &[Box<ServerName>],
-    ) -> Result {
-        self.client.join_room_by_id_or_alias(room, servers).await?;
-        Ok(())
+    /*pub(crate) fn room(&self, room_id: &RoomId) -> Result<room::Room> {
+        self.get_room(room_id).ok_or(Error::InvalidRoom)
+    }*/
+
+    pub(crate) fn joined_room(&self, room_id: &RoomId) -> Result<room::Joined> {
+        self.get_joined_room(room_id).ok_or(Error::InvalidRoom)
     }
 
-    pub(crate) async fn send(&self, room: &RoomId, message: MessageType) -> Result {
-        self.client
-            .room_send(room, MessageEventContent::new(message), None)
-            .await?;
-        Ok(())
-    }
+    /*pub(crate) fn invited_room(&self, room_id: &RoomId) -> Result<room::Invited> {
+        self.get_invited_room(room_id).ok_or(Error::InvalidRoom)
+    }*/
+
+    /*pub(crate) fn left_room(&self, room_id: &RoomId) -> Result<room::Left> {
+        self.get_left_room(room_id).ok_or(Error::InvalidRoom)
+    }*/
 }

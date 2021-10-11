@@ -2,7 +2,7 @@ use std::fs;
 use std::io::{self, Read};
 use std::path::PathBuf;
 
-use crate::{matrix::MatrixClient, Error, Result};
+use crate::{matrix::MatrixClient, Result};
 
 use atty::Stream;
 
@@ -14,21 +14,30 @@ use structopt::{
 use matrix_sdk::{
     room::Room,
     ruma::events::room::message::{
-        EmoteMessageEventContent, MessageType, NoticeMessageEventContent, TextMessageEventContent,
+        EmoteMessageEventContent, MessageEventContent, MessageType, NoticeMessageEventContent,
+        TextMessageEventContent,
     },
     ruma::identifiers::{RoomId, RoomIdOrAliasId, ServerName},
 };
+
+mod user;
 
 #[derive(Debug, StructOpt)]
 pub(crate) enum Command {
     /// Join Room
     Join(JoinCommand),
+
     /// Leave Room
     Leave(LeaveCommand),
+
     /// Send Message into Room
     Send(SendCommand),
+
     /// List Rooms
     List(ListCommand),
+
+    /// User commands for room
+    User(UserCommand),
 }
 
 impl Command {
@@ -38,6 +47,7 @@ impl Command {
             Self::List(command) => command.run(client).await,
             Self::Send(command) => command.run(client).await,
             Self::Leave(command) => command.run(client).await,
+            Self::User(command) => command.run(client).await,
         }
     }
 }
@@ -46,13 +56,17 @@ impl Command {
 pub(crate) struct JoinCommand {
     /// Alias or ID of Room
     room: RoomIdOrAliasId,
+
     /// Homeservers used to find the Room
     servers: Vec<Box<ServerName>>,
 }
 
 impl JoinCommand {
     async fn run(self, client: MatrixClient) -> Result {
-        client.join_room(&self.room, &self.servers).await
+        client
+            .join_room_by_id_or_alias(&self.room, &self.servers)
+            .await?;
+        Ok(())
     }
 }
 
@@ -64,11 +78,7 @@ pub(crate) struct LeaveCommand {
 
 impl LeaveCommand {
     async fn run(self, client: MatrixClient) -> Result {
-        client
-            .get_joined_room(&self.room)
-            .ok_or(Error::InvalidRoom)?
-            .leave()
-            .await?;
+        client.joined_room(&self.room)?.leave().await?;
         Ok(())
     }
 }
@@ -158,7 +168,10 @@ impl SendCommand {
                 TextMessageEventContent::plain(msg)
             })
         };
-        client.send(&self.room, content).await?;
+        client
+            .joined_room(&self.room)?
+            .send(MessageEventContent::new(content), None)
+            .await?;
         Ok(())
     }
 }
@@ -200,5 +213,20 @@ impl ListCommand {
             }
         }
         Ok(())
+    }
+}
+
+#[derive(Debug, StructOpt)]
+pub(crate) struct UserCommand {
+    /// Room ID
+    room: RoomId,
+
+    #[structopt(subcommand)]
+    command: user::Command,
+}
+
+impl UserCommand {
+    async fn run(self, client: MatrixClient) -> Result {
+        self.command.run(client, self.room).await
     }
 }
