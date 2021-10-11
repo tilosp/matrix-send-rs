@@ -31,6 +31,9 @@ pub(crate) enum Error {
     #[error("Invalid Room")]
     InvalidRoom,
 
+    #[error("Invalid File")]
+    InvalidFile,
+
     #[error(transparent)]
     IO(#[from] std::io::Error),
 
