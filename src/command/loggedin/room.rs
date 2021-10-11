@@ -1,8 +1,9 @@
-use std::fs;
+use std::borrow::Cow;
+use std::fs::{self, File};
 use std::io::{self, Read};
 use std::path::PathBuf;
 
-use crate::{matrix::MatrixClient, Result};
+use crate::{matrix::MatrixClient, Error, Result};
 
 use atty::Stream;
 
@@ -19,6 +20,8 @@ use matrix_sdk::{
     },
     ruma::identifiers::{RoomId, RoomIdOrAliasId, ServerName},
 };
+
+use mime::Mime;
 
 mod user;
 
@@ -38,6 +41,9 @@ pub(crate) enum Command {
 
     /// User commands for room
     User(UserCommand),
+
+    /// Send file into room
+    SendFile(SendFileCommand),
 }
 
 impl Command {
@@ -48,6 +54,7 @@ impl Command {
             Self::Send(command) => command.run(client).await,
             Self::Leave(command) => command.run(client).await,
             Self::User(command) => command.run(client).await,
+            Self::SendFile(command) => command.run(client).await,
         }
     }
 }
@@ -228,5 +235,44 @@ pub(crate) struct UserCommand {
 impl UserCommand {
     async fn run(self, client: MatrixClient) -> Result {
         self.command.run(client, self.room).await
+    }
+}
+
+#[derive(Debug, StructOpt)]
+pub(crate) struct SendFileCommand {
+    /// Room ID
+    room: RoomId,
+
+    /// File Path
+    file: PathBuf,
+
+    /// Override auto detected mime type
+    #[structopt(long)]
+    mime: Option<Mime>,
+
+    /// Override fallback text (Defaults to filename)
+    #[structopt(long)]
+    text: Option<String>,
+}
+
+impl SendFileCommand {
+    async fn run(self, client: MatrixClient) -> Result {
+        client
+            .joined_room(&self.room)?
+            .send_attachment(
+                self.text
+                    .as_ref()
+                    .map(Cow::from)
+                    .or_else(|| self.file.file_name().as_ref().map(|o| o.to_string_lossy()))
+                    .ok_or(Error::InvalidFile)?
+                    .as_ref(),
+                self.mime.as_ref().unwrap_or(
+                    &mime_guess::from_path(&self.file).first_or(mime::APPLICATION_OCTET_STREAM),
+                ),
+                &mut File::open(&self.file)?,
+                None,
+            )
+            .await?;
+        Ok(())
     }
 }
