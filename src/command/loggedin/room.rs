@@ -13,7 +13,9 @@ use structopt::{
 
 use matrix_sdk::{
     room::Room,
-    ruma::events::room::message::TextMessageEventContent,
+    ruma::events::room::message::{
+        EmoteMessageEventContent, MessageType, NoticeMessageEventContent, TextMessageEventContent,
+    },
     ruma::identifiers::{RoomId, RoomIdOrAliasId, ServerName},
 };
 
@@ -75,10 +77,12 @@ impl LeaveCommand {
 #[structopt(
     group = ArgGroup::with_name("msgopt"),
     group = ArgGroup::with_name("format"),
+    group = ArgGroup::with_name("type"),
 )]
 pub(crate) struct SendCommand {
     /// Room ID
     room: RoomId,
+
     /// Message to send
     #[structopt(group = "msgopt")]
     message: Option<String>,
@@ -94,6 +98,14 @@ pub(crate) struct SendCommand {
     /// Message is Markdown
     #[structopt(long, group = "format")]
     markdown: bool,
+
+    /// Send notice
+    #[structopt(long, group = "type")]
+    notice: bool,
+
+    /// Send emote
+    #[structopt(long, group = "type")]
+    emote: bool,
 }
 
 impl SendCommand {
@@ -112,28 +124,41 @@ impl SendCommand {
             }
             line
         };
-        client
-            .send(
-                &self.room,
-                if let Some(language) = self.code {
-                    let mut fmt_msg = String::from("```");
-                    if let Some(language) = language {
-                        fmt_msg.push_str(&language);
-                    }
-                    fmt_msg.push('\n');
-                    fmt_msg.push_str(&msg);
-                    if !fmt_msg.ends_with('\n') {
-                        fmt_msg.push('\n');
-                    }
-                    fmt_msg.push_str("```");
-                    TextMessageEventContent::markdown(fmt_msg)
-                } else if self.markdown {
-                    TextMessageEventContent::markdown(msg)
-                } else {
-                    TextMessageEventContent::plain(msg)
-                },
-            )
-            .await?;
+        let (msg, markdown) = if let Some(language) = self.code {
+            let mut fmt_msg = String::from("```");
+            if let Some(language) = language {
+                fmt_msg.push_str(&language);
+            }
+            fmt_msg.push('\n');
+            fmt_msg.push_str(&msg);
+            if !fmt_msg.ends_with('\n') {
+                fmt_msg.push('\n');
+            }
+            fmt_msg.push_str("```");
+            (fmt_msg, true)
+        } else {
+            (msg, self.markdown)
+        };
+        let content = if self.notice {
+            MessageType::Notice(if markdown {
+                NoticeMessageEventContent::markdown(msg)
+            } else {
+                NoticeMessageEventContent::plain(msg)
+            })
+        } else if self.emote {
+            MessageType::Emote(if markdown {
+                EmoteMessageEventContent::markdown(msg)
+            } else {
+                EmoteMessageEventContent::plain(msg)
+            })
+        } else {
+            MessageType::Text(if markdown {
+                TextMessageEventContent::markdown(msg)
+            } else {
+                TextMessageEventContent::plain(msg)
+            })
+        };
+        client.send(&self.room, content).await?;
         Ok(())
     }
 }
