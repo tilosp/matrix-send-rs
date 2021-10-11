@@ -2,7 +2,7 @@ use std::fs;
 use std::io::{self, Read};
 use std::path::PathBuf;
 
-use crate::{matrix::MatrixClient, Error, Result};
+use crate::{matrix::MatrixClient, Result};
 
 use atty::Stream;
 
@@ -14,7 +14,8 @@ use structopt::{
 use matrix_sdk::{
     room::Room,
     ruma::events::room::message::{
-        EmoteMessageEventContent, MessageType, NoticeMessageEventContent, TextMessageEventContent,
+        EmoteMessageEventContent, MessageEventContent, MessageType, NoticeMessageEventContent,
+        TextMessageEventContent,
     },
     ruma::identifiers::{RoomId, RoomIdOrAliasId, ServerName},
 };
@@ -52,7 +53,9 @@ pub(crate) struct JoinCommand {
 
 impl JoinCommand {
     async fn run(self, client: MatrixClient) -> Result {
-        client.join_room_by_id_or_alias(&self.room, &self.servers).await?;
+        client
+            .join_room_by_id_or_alias(&self.room, &self.servers)
+            .await?;
         Ok(())
     }
 }
@@ -65,11 +68,7 @@ pub(crate) struct LeaveCommand {
 
 impl LeaveCommand {
     async fn run(self, client: MatrixClient) -> Result {
-        client
-            .get_joined_room(&self.room)
-            .ok_or(Error::InvalidRoom)?
-            .leave()
-            .await?;
+        client.joined_room(&self.room)?.leave().await?;
         Ok(())
     }
 }
@@ -159,7 +158,10 @@ impl SendCommand {
                 TextMessageEventContent::plain(msg)
             })
         };
-        client.send(&self.room, content).await?;
+        client
+            .joined_room(&self.room)?
+            .send(MessageEventContent::new(content), None)
+            .await?;
         Ok(())
     }
 }
