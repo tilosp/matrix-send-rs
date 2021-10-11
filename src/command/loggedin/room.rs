@@ -20,16 +20,24 @@ use matrix_sdk::{
     ruma::identifiers::{RoomId, RoomIdOrAliasId, ServerName},
 };
 
+mod user;
+
 #[derive(Debug, StructOpt)]
 pub(crate) enum Command {
     /// Join Room
     Join(JoinCommand),
+
     /// Leave Room
     Leave(LeaveCommand),
+
     /// Send Message into Room
     Send(SendCommand),
+
     /// List Rooms
     List(ListCommand),
+
+    /// User commands for room
+    User(UserCommand),
 }
 
 impl Command {
@@ -39,6 +47,7 @@ impl Command {
             Self::List(command) => command.run(client).await,
             Self::Send(command) => command.run(client).await,
             Self::Leave(command) => command.run(client).await,
+            Self::User(command) => command.run(client).await,
         }
     }
 }
@@ -47,6 +56,7 @@ impl Command {
 pub(crate) struct JoinCommand {
     /// Alias or ID of Room
     room: RoomIdOrAliasId,
+
     /// Homeservers used to find the Room
     servers: Vec<Box<ServerName>>,
 }
@@ -203,5 +213,20 @@ impl ListCommand {
             }
         }
         Ok(())
+    }
+}
+
+#[derive(Debug, StructOpt)]
+pub(crate) struct UserCommand {
+    /// Room ID
+    room: RoomId,
+
+    #[structopt(subcommand)]
+    command: user::Command,
+}
+
+impl UserCommand {
+    async fn run(self, client: MatrixClient) -> Result {
+        self.command.run(client, self.room).await
     }
 }
