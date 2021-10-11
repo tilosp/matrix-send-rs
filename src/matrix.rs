@@ -8,7 +8,7 @@ use crate::{Error, Result};
 
 use matrix_sdk::{
     ruma::api::client::r0::session::login::Response as LoginResponse,
-    ruma::events::room::message::{MessageEventContent, MessageType, TextMessageEventContent},
+    ruma::events::room::message::{MessageEventContent, MessageType},
     ruma::identifiers::{DeviceId, RoomId, RoomIdOrAliasId, ServerName, UserId},
     Client, ClientConfig, Session, SyncSettings,
 };
@@ -174,13 +174,9 @@ impl MatrixClient {
         Ok(())
     }
 
-    pub(crate) async fn send(&self, room: &RoomId, message: TextMessageEventContent) -> Result {
+    pub(crate) async fn send(&self, room: &RoomId, message: MessageType) -> Result {
         self.client
-            .room_send(
-                room,
-                MessageEventContent::new(MessageType::Text(message)),
-                None,
-            )
+            .room_send(room, MessageEventContent::new(message), None)
             .await?;
         Ok(())
     }
