@@ -1,26 +1,31 @@
 {
-	// Based on https://github.com/microsoft/vscode-dev-containers/tree/master/containers/rust
+	// Based on https://github.com/microsoft/vscode-dev-containers/tree/main/containers/rust
 	"name": "Rust",
 	"image": "mcr.microsoft.com/vscode/devcontainers/rust",
-	"runArgs": [ "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined" ],
+	"runArgs": [
+		"--cap-add=SYS_PTRACE",
+		"--security-opt",
+		"seccomp=unconfined"
+	],
 
 	// Set *default* container specific settings.json values on container create.
-	"settings": { 
-		"terminal.integrated.shell.linux": "/bin/bash",
+	"settings": {
 		"lldb.executable": "/usr/bin/lldb",
 		// VS Code don't watch files under ./target
 		"files.watcherExclude": {
 			"**/target/**": true
-		}
+		},
+		"rust-analyzer.checkOnSave.command": "clippy"
 	},
 
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
-		"rust-lang.rust",
-		"bungcip.better-toml",
 		"vadimcn.vscode-lldb",
-		"mutantdino.resourcemonitor"
-	]
+		"mutantdino.resourcemonitor",
+		"matklad.rust-analyzer",
+		"tamasfe.even-better-toml",
+		"serayuzgur.crates"
+	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
@@ -28,6 +33,6 @@
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "rustc --version",
 
-	// Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
-	// "remoteUser": "vscode"
+	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "vscode"
 }
