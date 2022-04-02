@@ -1,7 +1,7 @@
 use crate::dir::Directories;
 use crate::matrix::MatrixClient;
 
-use structopt::StructOpt;
+use clap::Parser;
 
 use thiserror::Error;
 
@@ -11,9 +11,9 @@ mod matrix;
 
 const APP_NAME: &str = env!("CARGO_PKG_NAME");
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 struct Opt {
-    #[structopt(subcommand)]
+    #[clap(subcommand)]
     command: command::Command,
 }
 
@@ -57,7 +57,7 @@ pub(crate) type Result<T = ()> = std::result::Result<T, Error>;
 
 #[tokio::main]
 async fn main() -> Result {
-    let Opt { command } = Opt::from_args();
+    let Opt { command } = Opt::parse();
 
     let dirs = Directories::new()?;
 

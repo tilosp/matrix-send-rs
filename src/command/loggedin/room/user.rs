@@ -2,11 +2,11 @@ use crate::{matrix::MatrixClient, Result};
 
 use std::cmp::Reverse;
 
-use structopt::StructOpt;
+use clap::Parser;
 
 use matrix_sdk::ruma::identifiers::{RoomId, UserId};
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) enum Command {
     /// Kick a user
     Kick(KickCommand),
@@ -32,7 +32,7 @@ impl Command {
     }
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) struct KickCommand {
     /// User ID
     user: UserId,
@@ -51,7 +51,7 @@ impl KickCommand {
     }
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) struct BanCommand {
     /// User ID
     user: UserId,
@@ -70,7 +70,7 @@ impl BanCommand {
     }
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) struct ListCommand {}
 
 impl ListCommand {
@@ -90,7 +90,7 @@ impl ListCommand {
     }
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) struct InviteCommand {
     /// User ID
     user: UserId,
