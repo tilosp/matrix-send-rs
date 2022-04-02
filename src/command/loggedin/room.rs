@@ -7,10 +7,7 @@ use crate::{matrix::MatrixClient, Error, Result};
 
 use atty::Stream;
 
-use structopt::{
-    clap::{arg_enum, ArgGroup},
-    StructOpt,
-};
+use clap::{ArgEnum, ArgGroup, Parser};
 
 use matrix_sdk::{
     room::Room,
@@ -25,7 +22,7 @@ use mime::Mime;
 
 mod user;
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) enum Command {
     /// Join Room
     Join(JoinCommand),
@@ -59,7 +56,7 @@ impl Command {
     }
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) struct JoinCommand {
     /// Alias or ID of Room
     room: RoomIdOrAliasId,
@@ -77,7 +74,7 @@ impl JoinCommand {
     }
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) struct LeaveCommand {
     /// Room ID
     room: RoomId,
@@ -90,38 +87,38 @@ impl LeaveCommand {
     }
 }
 
-#[derive(Debug, StructOpt)]
-#[structopt(
-    group = ArgGroup::with_name("msgopt"),
-    group = ArgGroup::with_name("format"),
-    group = ArgGroup::with_name("type"),
+#[derive(Debug, Parser)]
+#[clap(
+    group = ArgGroup::new("msgopt"),
+    group = ArgGroup::new("format"),
+    group = ArgGroup::new("type"),
 )]
 pub(crate) struct SendCommand {
     /// Room ID
     room: RoomId,
 
     /// Message to send
-    #[structopt(group = "msgopt")]
+    #[clap(group = "msgopt")]
     message: Option<String>,
 
     /// Read Message from file
-    #[structopt(short, long, group = "msgopt")]
+    #[clap(short, long, group = "msgopt")]
     file: Option<PathBuf>,
 
     /// Put message in code block
-    #[structopt(name = "language", long = "code", group = "format")]
+    #[clap(name = "language", long = "code", group = "format")]
     code: Option<Option<String>>,
 
     /// Message is Markdown
-    #[structopt(long, group = "format")]
+    #[clap(long, group = "format")]
     markdown: bool,
 
     /// Send notice
-    #[structopt(long, group = "type")]
+    #[clap(long, group = "type")]
     notice: bool,
 
     /// Send emote
-    #[structopt(long, group = "type")]
+    #[clap(long, group = "type")]
     emote: bool,
 }
 
@@ -183,21 +180,19 @@ impl SendCommand {
     }
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) struct ListCommand {
     /// Kind
-    #[structopt(possible_values = &["all", "joined", "invited", "left"], default_value = "joined")]
+    #[clap(arg_enum, default_value = "joined")]
     kind: Vec<Kind>,
 }
 
-arg_enum! {
-    #[derive(Debug)]
-    enum Kind {
-        All,
-        Joined,
-        Invited,
-        Left
-    }
+#[derive(Clone, ArgEnum, Debug)]
+enum Kind {
+    All,
+    Joined,
+    Invited,
+    Left,
 }
 
 impl ListCommand {
@@ -223,12 +218,12 @@ impl ListCommand {
     }
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) struct UserCommand {
     /// Room ID
     room: RoomId,
 
-    #[structopt(subcommand)]
+    #[clap(subcommand)]
     command: user::Command,
 }
 
@@ -238,7 +233,7 @@ impl UserCommand {
     }
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) struct SendFileCommand {
     /// Room ID
     room: RoomId,
@@ -247,11 +242,11 @@ pub(crate) struct SendFileCommand {
     file: PathBuf,
 
     /// Override auto detected mime type
-    #[structopt(long)]
+    #[clap(long)]
     mime: Option<Mime>,
 
     /// Override fallback text (Defaults to filename)
-    #[structopt(long)]
+    #[clap(long)]
     text: Option<String>,
 }
 

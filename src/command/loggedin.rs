@@ -1,10 +1,10 @@
 use crate::{matrix::MatrixClient, Result};
 
-use structopt::StructOpt;
+use clap::Parser;
 
 mod room;
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) enum Command {
     /// Room Subcommands
     Room(RoomCommand),
@@ -18,9 +18,9 @@ impl Command {
     }
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) struct RoomCommand {
-    #[structopt(subcommand)]
+    #[clap(subcommand)]
     command: room::Command,
 }
 

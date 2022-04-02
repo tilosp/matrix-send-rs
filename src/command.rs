@@ -4,13 +4,13 @@ use crate::{dir::Directories, matrix::MatrixClient, Error, Result};
 
 use url::Url;
 
-use structopt::StructOpt;
+use clap::Parser;
 
 mod loggedin;
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) enum Command {
-    #[structopt(flatten)]
+    #[clap(flatten)]
     LoggedInCommands(loggedin::Command),
 
     /// Login to Matrix Account
@@ -33,7 +33,7 @@ impl Command {
     }
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) struct LoginCommand {
     /// Homeserver Url
     homeserver: Url,
@@ -69,7 +69,7 @@ impl LoginCommand {
     }
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub(crate) struct LogoutCommand {}
 
 impl LogoutCommand {
