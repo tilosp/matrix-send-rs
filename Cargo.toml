@@ -29,7 +29,7 @@ tokio = { version = "1.17", default-features = false, features = [
     "rt-multi-thread",
     "macros",
 ] }
-clap = { version = "3.1", features = ["derive"] }
+clap = { version = "3.2", features = ["derive"] }
 atty = "0.2"
 matrix-sdk = { version = "0.4", default-features = false, features = [
     "rustls-tls",
