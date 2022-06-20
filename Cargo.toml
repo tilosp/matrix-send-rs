@@ -2,7 +2,7 @@
 name = "matrix-send"
 version = "0.2.1"
 authors = ["Tilo Spannagel <development@tilosp.de>"]
-edition = "2018"
+edition = "2021"
 license = "Apache-2.0"
 repository = "https://github.com/tilosp/matrix-send-rs"
 homepage = "https://crates.io/crates/matrix-send"
@@ -45,4 +45,3 @@ lto = true
 [profile.release-tiny]
 inherits = "release"
 opt-level = "s"
-
