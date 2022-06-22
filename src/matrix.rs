@@ -7,10 +7,13 @@ use crate::dir::Directories;
 use crate::{Error, Result};
 
 use matrix_sdk::{
+    config::SyncSettings,
     room,
-    ruma::api::client::r0::session::login::Response as LoginResponse,
-    ruma::identifiers::{DeviceId, RoomId, UserId},
-    Client, ClientConfig, Session, SyncSettings,
+    ruma::{
+        api::client::session::login::v3::Response as LoginResponse, OwnedDeviceId, OwnedUserId,
+        RoomId,
+    },
+    Client, Session,
 };
 use url::Url;
 
@@ -20,8 +23,8 @@ use serde::{Deserialize, Serialize};
 struct SessionData {
     homeserver: Url,
     access_token: String,
-    device_id: Box<DeviceId>,
-    user_id: UserId,
+    device_id: OwnedDeviceId,
+    user_id: OwnedUserId,
 }
 
 impl SessionData {
@@ -107,16 +110,15 @@ impl MatrixClient {
         }
     }
 
-    fn create_client(homserver: Url) -> Result<Client> {
-        let client_config = ClientConfig::default();
-        Ok(Client::new_with_config(homserver, client_config)?)
+    async fn create_client(homserver: Url) -> Result<Client> {
+        Ok(Client::new(homserver).await?)
     }
 
     pub(crate) async fn load(dirs: &Directories) -> Result<Self> {
         if dirs.session_file.exists() {
             let session = SessionData::load(&dirs.session_file)?;
 
-            let client = Self::create_client(session.homeserver.clone())?;
+            let client = Self::create_client(session.homeserver.clone()).await?;
             client.restore_login(session.into()).await?;
 
             let client = Self::new(client, dirs);
@@ -133,7 +135,7 @@ impl MatrixClient {
         username: &str,
         password: &str,
     ) -> Result<Self> {
-        let client = Self::create_client(homeserver.clone())?;
+        let client = Self::create_client(homeserver.clone()).await?;
         SessionData::new(
             homeserver.clone(),
             client

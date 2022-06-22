@@ -10,12 +10,15 @@ use atty::Stream;
 use clap::{ArgEnum, ArgGroup, Parser};
 
 use matrix_sdk::{
+    attachment::AttachmentConfig,
     room::Room,
-    ruma::events::room::message::{
-        EmoteMessageEventContent, MessageEventContent, MessageType, NoticeMessageEventContent,
-        TextMessageEventContent,
+    ruma::{
+        events::room::message::{
+            EmoteMessageEventContent, MessageType, NoticeMessageEventContent,
+            RoomMessageEventContent, TextMessageEventContent,
+        },
+        OwnedRoomId, OwnedRoomOrAliasId, OwnedServerName,
     },
-    ruma::identifiers::{RoomId, RoomIdOrAliasId, ServerName},
 };
 
 use mime::Mime;
@@ -59,10 +62,10 @@ impl Command {
 #[derive(Debug, Parser)]
 pub(crate) struct JoinCommand {
     /// Alias or ID of Room
-    room: RoomIdOrAliasId,
+    room: OwnedRoomOrAliasId,
 
     /// Homeservers used to find the Room
-    servers: Vec<Box<ServerName>>,
+    servers: Vec<OwnedServerName>,
 }
 
 impl JoinCommand {
@@ -77,7 +80,7 @@ impl JoinCommand {
 #[derive(Debug, Parser)]
 pub(crate) struct LeaveCommand {
     /// Room ID
-    room: RoomId,
+    room: OwnedRoomId,
 }
 
 impl LeaveCommand {
@@ -95,7 +98,7 @@ impl LeaveCommand {
 )]
 pub(crate) struct SendCommand {
     /// Room ID
-    room: RoomId,
+    room: OwnedRoomId,
 
     /// Message to send
     #[clap(group = "msgopt")]
@@ -174,7 +177,7 @@ impl SendCommand {
         };
         client
             .joined_room(&self.room)?
-            .send(MessageEventContent::new(content), None)
+            .send(RoomMessageEventContent::new(content), None)
             .await?;
         Ok(())
     }
@@ -221,7 +224,7 @@ impl ListCommand {
 #[derive(Debug, Parser)]
 pub(crate) struct UserCommand {
     /// Room ID
-    room: RoomId,
+    room: OwnedRoomId,
 
     #[clap(subcommand)]
     command: user::Command,
@@ -236,7 +239,7 @@ impl UserCommand {
 #[derive(Debug, Parser)]
 pub(crate) struct SendFileCommand {
     /// Room ID
-    room: RoomId,
+    room: OwnedRoomId,
 
     /// File Path
     file: PathBuf,
@@ -265,7 +268,7 @@ impl SendFileCommand {
                     &mime_guess::from_path(&self.file).first_or(mime::APPLICATION_OCTET_STREAM),
                 ),
                 &mut File::open(&self.file)?,
-                None,
+                AttachmentConfig::new(),
             )
             .await?;
         Ok(())

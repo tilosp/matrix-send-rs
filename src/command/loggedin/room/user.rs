@@ -4,7 +4,7 @@ use std::cmp::Reverse;
 
 use clap::Parser;
 
-use matrix_sdk::ruma::identifiers::{RoomId, UserId};
+use matrix_sdk::ruma::{OwnedRoomId, OwnedUserId};
 
 #[derive(Debug, Parser)]
 pub(crate) enum Command {
@@ -22,7 +22,7 @@ pub(crate) enum Command {
 }
 
 impl Command {
-    pub(super) async fn run(self, client: MatrixClient, room: RoomId) -> Result {
+    pub(super) async fn run(self, client: MatrixClient, room: OwnedRoomId) -> Result {
         match self {
             Self::Kick(command) => command.run(client, room).await,
             Self::Ban(command) => command.run(client, room).await,
@@ -35,14 +35,14 @@ impl Command {
 #[derive(Debug, Parser)]
 pub(crate) struct KickCommand {
     /// User ID
-    user: UserId,
+    user: OwnedUserId,
 
     /// Reason for kick
     reason: Option<String>,
 }
 
 impl KickCommand {
-    async fn run(self, client: MatrixClient, room: RoomId) -> Result {
+    async fn run(self, client: MatrixClient, room: OwnedRoomId) -> Result {
         client
             .joined_room(&room)?
             .kick_user(&self.user, self.reason.as_deref())
@@ -54,14 +54,14 @@ impl KickCommand {
 #[derive(Debug, Parser)]
 pub(crate) struct BanCommand {
     /// User ID
-    user: UserId,
+    user: OwnedUserId,
 
     /// Reason for ban
     reason: Option<String>,
 }
 
 impl BanCommand {
-    async fn run(self, client: MatrixClient, room: RoomId) -> Result {
+    async fn run(self, client: MatrixClient, room: OwnedRoomId) -> Result {
         client
             .joined_room(&room)?
             .ban_user(&self.user, self.reason.as_deref())
@@ -74,7 +74,7 @@ impl BanCommand {
 pub(crate) struct ListCommand {}
 
 impl ListCommand {
-    async fn run(self, client: MatrixClient, room: RoomId) -> Result {
+    async fn run(self, client: MatrixClient, room: OwnedRoomId) -> Result {
         let mut members = client.joined_room(&room)?.joined_members().await?;
 
         members.sort_by_key(|m| Reverse(m.power_level()));
@@ -93,11 +93,11 @@ impl ListCommand {
 #[derive(Debug, Parser)]
 pub(crate) struct InviteCommand {
     /// User ID
-    user: UserId,
+    user: OwnedUserId,
 }
 
 impl InviteCommand {
-    async fn run(self, client: MatrixClient, room: RoomId) -> Result {
+    async fn run(self, client: MatrixClient, room: OwnedRoomId) -> Result {
         client
             .joined_room(&room)?
             .invite_user_by_id(&self.user)
