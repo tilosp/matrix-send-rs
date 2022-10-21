@@ -1,4 +1,4 @@
-use std::fs;
+use std::io::{self, Write};
 
 use crate::{dir::Directories, matrix::MatrixClient, Error, Result};
 
@@ -16,6 +16,9 @@ pub(crate) enum Command {
     /// Login to Matrix Account
     Login(LoginCommand),
 
+    /// Emoji verify device of Matrix Account
+    Verify(VerifyCommand),
+
     /// Logout from Matrix Account
     Logout(LogoutCommand),
 }
@@ -24,6 +27,7 @@ impl Command {
     pub(super) async fn run(self, client: Result<MatrixClient>, dirs: &Directories) -> Result {
         match self {
             Self::Login(command) => command.run(client, dirs).await,
+            Self::Verify(command) => command.run(client, dirs).await,
             Self::Logout(command) => command.run(client, dirs).await,
             Self::LoggedInCommands(command) => {
                 let client = client?;
@@ -62,10 +66,25 @@ impl LoginCommand {
     }
 
     fn user_input(message: &'static str) -> Result<String> {
-        println!("{}", message);
+        print!("{} ", message);
+        io::stdout().flush().unwrap();
         let mut line = String::new();
         std::io::stdin().read_line(&mut line)?;
         Ok(line)
+    }
+}
+
+#[derive(Debug, Parser)]
+pub(crate) struct VerifyCommand {}
+
+impl VerifyCommand {
+    async fn run(self, client: Result<MatrixClient>, _dirs: &Directories) -> Result {
+        if let Ok(client) = client {
+            client.verify().await?;
+            Ok(())
+        } else {
+            Error::custom("Not logged in")
+        }
     }
 }
 
@@ -74,14 +93,7 @@ pub(crate) struct LogoutCommand {}
 
 impl LogoutCommand {
     async fn run(self, client: Result<MatrixClient>, dirs: &Directories) -> Result {
-        if let Ok(client) = client {
-            client.logout().await?;
-        } else {
-            if dirs.session_file.exists() {
-                fs::remove_file(&dirs.session_file)?;
-            }
-            client?;
-        }
+        MatrixClient::logout(client, dirs).await?;
         Ok(())
     }
 }

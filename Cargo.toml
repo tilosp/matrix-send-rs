@@ -1,6 +1,6 @@
 [package]
 name = "matrix-send"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Tilo Spannagel <development@tilosp.de>"]
 edition = "2021"
 license = "Apache-2.0"
@@ -25,18 +25,24 @@ serde = { version = "1.0", features = ["derive"] }
 url = { version = "2.3", features = ["serde"] }
 serde_json = "1.0"
 directories = "4.0"
-tokio = { version = "1.21", default-features = false, features = [
+# ruma-client-api 0.15.2 had a bug: ruma-client-api  = { version =  ">=0.15.0, <0.15.2" }
+tokio = { version = "1.20", default-features = false, features = [
     "rt-multi-thread",
     "macros",
 ] }
-clap = { version = "3.2", features = ["derive"] }
+clap = { version = "*", features = ["derive"] }
 atty = "0.2"
-matrix-sdk = { version = "0.5", default-features = false, features = [
+matrix-sdk = { version = "0.6", default-features = false, features = [
     "rustls-tls",
     "markdown",
+    "anyhow",
+    "e2e-encryption",
+    "sled",
 ] }
 mime = "0.3"
 mime_guess = "2.0"
+tracing-subscriber = "0.3.15"
+tracing = "*"
 
 [profile.release]
 strip = "symbols"
