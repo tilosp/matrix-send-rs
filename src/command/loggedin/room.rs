@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::fs::{self, File};
+use std::fs::{self};
 use std::io::{self, Read};
 use std::path::PathBuf;
 
@@ -7,7 +7,7 @@ use crate::{matrix::MatrixClient, Error, Result};
 
 use atty::Stream;
 
-use clap::{ArgEnum, ArgGroup, Parser};
+use clap::{ArgGroup, Parser, ValueEnum};
 
 use matrix_sdk::{
     attachment::AttachmentConfig,
@@ -186,11 +186,11 @@ impl SendCommand {
 #[derive(Debug, Parser)]
 pub(crate) struct ListCommand {
     /// Kind
-    #[clap(arg_enum, default_value = "joined")]
+    #[clap(value_enum, default_value = "joined")]
     kind: Vec<Kind>,
 }
 
-#[derive(Clone, ArgEnum, Debug)]
+#[derive(Clone, ValueEnum, Debug)]
 enum Kind {
     All,
     Joined,
@@ -255,6 +255,7 @@ pub(crate) struct SendFileCommand {
 
 impl SendFileCommand {
     async fn run(self, client: MatrixClient) -> Result {
+        let data = fs::read(&self.file)?;
         client
             .joined_room(&self.room)?
             .send_attachment(
@@ -267,7 +268,7 @@ impl SendFileCommand {
                 self.mime.as_ref().unwrap_or(
                     &mime_guess::from_path(&self.file).first_or(mime::APPLICATION_OCTET_STREAM),
                 ),
-                &mut File::open(&self.file)?,
+                &data,
                 AttachmentConfig::new(),
             )
             .await?;

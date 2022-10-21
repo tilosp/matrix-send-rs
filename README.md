@@ -15,6 +15,7 @@ FLAGS:
 SUBCOMMANDS:
     help      Prints this message or the help of the given subcommand(s)
     login     Login to Matrix Account
+    verify    Emoji verify device of Matrix Account
     logout    Logout from Matrix Account
     room      Room Subcommands
 ```
