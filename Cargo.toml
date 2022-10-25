@@ -31,7 +31,7 @@ tokio = { version = "1.21", default-features = false, features = [
 ] }
 clap = { version = "3.2", features = ["derive"] }
 atty = "0.2"
-matrix-sdk = { version = "0.5", default-features = false, features = [
+matrix-sdk = { version = "0.6", default-features = false, features = [
     "rustls-tls",
     "markdown",
 ] }
